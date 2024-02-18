@@ -14,7 +14,7 @@ const refs = {
 };
 
 let userValue;
-let page;
+let page = 1;
 
 hideLoader();
 
@@ -23,6 +23,7 @@ const lightbox = new SimpleLightbox('.images a');
 refs.loadMore.addEventListener('click', async e => {
   e.preventDefault();
   page += 1;
+  console.log(page);
   const data = await searchImages(userValue, page);
   renderImages(data);
 });
@@ -69,6 +70,7 @@ async function searchImages(userValue, page) {
     orientation: 'horizontal',
     safesearch: true,
     page: page,
+    per_page: 15,
   };
 
   page = 1;
