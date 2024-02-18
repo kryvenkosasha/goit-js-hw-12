@@ -15,17 +15,31 @@ const refs = {
 
 let userValue;
 let page = 1;
+let maxPage;
 
 hideLoader();
+hideLoadMoreBtn();
 
 const lightbox = new SimpleLightbox('.images a');
 
 refs.loadMore.addEventListener('click', async e => {
   e.preventDefault();
   page += 1;
-  console.log(page);
+  showLoader();
   const data = await searchImages(userValue, page);
   renderImages(data);
+  hideLoader();
+  lightbox.refresh();
+
+  let elem = document.querySelector('li');
+  let rect = elem.getBoundingClientRect();
+  window.scrollBy({
+    top: rect.height * 2,
+    left: 0,
+    behavior: 'smooth',
+  });
+  console.log(rect);
+  chekBtnVisibleStatus();
 });
 
 refs.gallery.addEventListener('click', e => {
@@ -75,7 +89,9 @@ async function searchImages(userValue, page) {
 
   page = 1;
 
-  const res = await axios.get(BASE_URL, { options });
+  const res = await axios.get(BASE_URL, { params: options });
+  maxPage = Math.ceil(res.data.totalHits / 15);
+  chekBtnVisibleStatus();
   return res.data;
 }
 
@@ -110,5 +126,25 @@ function renderImages(data) {
     return;
   }
   const markup = createMarcup(data);
-  refs.gallery.insertAdjacentHTML('afterbegin', markup);
+  refs.gallery.insertAdjacentHTML('beforeend', markup);
+}
+
+function showLoadMoreBtn() {
+  refs.loadMore.classList.remove('hidden');
+}
+
+function hideLoadMoreBtn() {
+  refs.loadMore.classList.add('hidden');
+}
+
+function chekBtnVisibleStatus() {
+  if (page === maxPage) {
+    hideLoadMoreBtn();
+    iziToast.show({
+      message: 'This are all photos',
+      color: 'blue',
+    });
+  } else {
+    showLoadMoreBtn();
+  }
 }

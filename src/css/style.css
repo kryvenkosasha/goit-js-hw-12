@@ -68,3 +68,13 @@ button {
   padding: 15px 20px;
   border-radius: 25px;
 }
+
+.load-more{
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 50px;
+}
+
+.hidden {
+  display: none;
+}
