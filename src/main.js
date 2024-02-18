@@ -95,7 +95,6 @@ function createMarcup(images) {
   <p>Views: ${image.views} </p>
   <p>Comments: ${image.comments} </p>
   <p>Downloads: ${image.downloads} </p>
-  
   </li>`;
     })
     .join('\n');
