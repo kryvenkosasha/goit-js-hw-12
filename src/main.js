@@ -2,18 +2,30 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import axios from 'axios';
 
 const refs = {
   searchForm: document.querySelector('form'),
   searchInput: document.querySelector('input'),
-  searchButton: document.querySelector('button'),
+  searchButton: document.querySelector('.search'),
   gallery: document.querySelector('.images'),
-  loader: document.querySelector('.loader'), 
+  loader: document.querySelector('.loader'),
+  loadMore: document.querySelector('.load-more'),
 };
+
+let userValue;
+let page;
 
 hideLoader();
 
 const lightbox = new SimpleLightbox('.images a');
+
+refs.loadMore.addEventListener('click', async e => {
+  e.preventDefault();
+  page += 1;
+  const data = await searchImages(userValue, page);
+  renderImages(data);
+});
 
 refs.gallery.addEventListener('click', e => {
   if (e.target === e.currentTarget) return;
@@ -22,14 +34,14 @@ refs.gallery.addEventListener('click', e => {
 
 refs.searchForm.addEventListener('submit', async e => {
   e.preventDefault();
-  const userValue = e.target.elements.input.value;
+  userValue = e.target.elements.input.value;
 
   if (userValue === '') return;
 
-  showLoader(); 
+  showLoader();
 
   try {
-    const data = await searchImages(userValue);
+    const data = await searchImages(userValue, page);
     refs.gallery.innerHTML = '';
     renderImages(data);
     lightbox.refresh();
@@ -41,14 +53,14 @@ refs.searchForm.addEventListener('submit', async e => {
 });
 
 function showLoader() {
-  refs.loader.style.display = 'block'; 
+  refs.loader.style.display = 'block';
 }
 
 function hideLoader() {
-  refs.loader.style.display = 'none'; 
+  refs.loader.style.display = 'none';
 }
 
-function searchImages(userValue) {
+async function searchImages(userValue, page) {
   const BASE_URL = `https://pixabay.com/api/?key=42312276-5bc23f4af127c6565aecd0d27&q=${userValue}`;
 
   const options = {
@@ -56,8 +68,13 @@ function searchImages(userValue) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
+    page: page,
   };
-  return fetch(BASE_URL, options).then(res => res.json());
+
+  page = 1;
+
+  const res = await axios.get(BASE_URL, { options });
+  return res.data;
 }
 
 function createMarcup(images) {
