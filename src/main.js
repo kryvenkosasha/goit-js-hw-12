@@ -38,7 +38,7 @@ refs.loadMore.addEventListener('click', async e => {
     left: 0,
     behavior: 'smooth',
   });
-  console.log(rect);
+  // console.log(rect);
   chekBtnVisibleStatus();
 });
 
@@ -50,7 +50,7 @@ refs.gallery.addEventListener('click', e => {
 refs.searchForm.addEventListener('submit', async e => {
   e.preventDefault();
   userValue = e.target.elements.input.value;
-
+  page = 1;
   if (userValue === '') return;
 
   showLoader();
@@ -76,23 +76,29 @@ function hideLoader() {
 }
 
 async function searchImages(userValue, page) {
-  const BASE_URL = `https://pixabay.com/api/?key=42312276-5bc23f4af127c6565aecd0d27&q=${userValue}`;
+  try {
+    const BASE_URL = `https://pixabay.com/api/?key=42312276-5bc23f4af127c6565aecd0d27&q=${userValue}`;
 
-  const options = {
-    q: `${userValue}`,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    page: page,
-    per_page: 15,
-  };
+    const options = {
+      q: `${userValue}`,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: true,
+      page: page,
+      per_page: 15,
+    };
 
-  page = 1;
-
-  const res = await axios.get(BASE_URL, { params: options });
-  maxPage = Math.ceil(res.data.totalHits / 15);
-  chekBtnVisibleStatus();
-  return res.data;
+    const res = await axios.get(BASE_URL, { params: options });
+    maxPage = Math.ceil(res.data.totalHits / 15);
+    chekBtnVisibleStatus();
+    return res.data;
+  } catch (err) {
+    iziToast.show({
+      message: 'Сталася помилка',
+      color: 'red',
+    });
+    console.error(err);
+  }
 }
 
 function createMarcup(images) {
